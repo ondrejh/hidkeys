@@ -51,8 +51,8 @@ uchar	i, j;
     DDRB = 0;       /* all pins input */
     PORTC = 0xff;   /* activate all pull-ups */
     DDRC = 0;       /* all pins input */
-    PORTD = 0xfa;   /* 1111 1010 bin: activate pull-ups except on USB lines */
-    DDRD = 0x07;    /* 0000 0111 bin: all pins input except USB (-> USB reset) */
+    PORTD = 0xf3;   /* 1111 0011 bin: activate pull-ups except on USB lines */
+    DDRD = 0x0a;    /* 0000 1100 bin: all pins input except USB (-> USB reset) */
 	j = 0;
 	while(--j){     /* USB Reset by device only required on Watchdog Reset */
 		i = 0;
@@ -89,8 +89,8 @@ uchar   i, mask, x;
         mask <<= 1;
     }
     x = PIND;
-    mask = 1 << 3;
-    for(i=0;i<5;i++){
+    mask = 1 << 4;
+    for(i=0;i<4;i++){
         if((x & mask) == 0)
             return i + 13;
         mask <<= 1;

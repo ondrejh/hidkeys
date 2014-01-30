@@ -29,7 +29,7 @@ the newest features and options.
 /* This is the port where the USB bus is connected. When you configure it to
  * "B", the registers PORTB, PINB and DDRB will be used.
  */
-#define USB_CFG_DMINUS_BIT      0
+#define USB_CFG_DMINUS_BIT      3
 /* This is the bit number in USB_CFG_IOPORT where the USB D- line is connected.
  * This may be any bit in the port.
  */
@@ -138,7 +138,7 @@ the newest features and options.
  * If you don't want a vendor name string, undefine these macros.
  * ALWAYS define a vendor name containing your Internet domain name if you use
  * obdev's free shared VID/PID pair. See the file USBID-License.txt for
- * details. 
+ * details.
  */
 #define USB_CFG_DEVICE_NAME     'H', 'I', 'D', 'K', 'e', 'y', 's'
 #define USB_CFG_DEVICE_NAME_LEN 7
