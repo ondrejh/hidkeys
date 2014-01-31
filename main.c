@@ -18,6 +18,9 @@
 
 /* ----------------------- hardware I/O abstraction ------------------------ */
 
+#define LED_ON() do{PORTB|=0x02;}while(0)
+#define LED_OFF() do{PORTB&=~0x02;}while(0)
+
 /* pin assignments:
 PB0	Key 1
 PB1	Key 2
@@ -61,9 +64,24 @@ uchar	i, j;
     DDRD = 0x02;    /* 0000 0010 bin: remove USB reset condition */
     /* configure timer 0 for a rate of 12M/(1024 * 256) = 45.78 Hz (~22ms) */
     TCCR0 = 5;      /* timer 0 prescaler: 1024 */
-}
 
+    LED_OFF(); // indicator led
+    DDRB|=0x02;
+}
 /* ------------------------------------------------------------------------- */
+
+/* The following function returns a bit value representing 8 keys (read at once)*/
+static uint8_t scanKeys(void)
+{
+    static uint8_t lastKeysDetect=0x07, lastKeysRead=0x07;
+    static uint8_t bounceCnt = 0;
+
+    uint8_t keys = (PIND>>5);
+
+
+
+    lastKeysRead = keys;
+}
 
 #define NUM_KEYS    17
 
@@ -74,7 +92,7 @@ static uchar    keyPressed(void)
 {
 uchar   i, mask, x;
 
-    x = PINB;
+    /*x = PINB;
     mask = 1;
     for(i=0;i<6;i++){
         if((x & mask) == 0)
@@ -87,7 +105,7 @@ uchar   i, mask, x;
         if((x & mask) == 0)
             return i + 7;
         mask <<= 1;
-    }
+    }*/
     x = PIND;
     mask = 1 << 4;
     for(i=0;i<4;i++){
@@ -246,12 +264,41 @@ usbRequest_t    *rq = (void *)data;
 	return 0;
 }
 
+/* --- circular buffer ----------------------------------------------------- */
+
+#define KEYBUFLEN 16
+uint8_t keyBuffer[KEYBUFLEN];
+uint8_t keyBufPtrIn=0,keyBufPtrOut=0;
+
+void put_key(uint8_t key)
+{
+    keyBuffer[keyBufPtrIn++]=key;
+    if (keyBufPtrIn>=KEYBUFLEN) keyBufPtrIn=0;
+}
+
+uint8_t get_key(uint8_t *key)
+{
+    if (keyBufPtrOut!=keyBufPtrIn)
+    {
+        *key = keyBuffer[keyBufPtrOut++];
+        if (keyBufPtrOut>=KEYBUFLEN) keyBufPtrOut=0;
+        return 1;
+    }
+
+    *key = 0;
+    return 0;
+}
+
 /* ------------------------------------------------------------------------- */
 
 int	main(void)
 {
 uchar   key, lastKey = 0, keyDidChange = 0;
 uchar   idleCounter = 0;
+
+    /*uint8_t keys, lastKeys=0;
+    uint8_t keysQue[16];
+    uint8_t keysQueWritePtr=0, keysQueReadPtr=0;*/
 
 	wdt_enable(WDTO_2S);
     hardwareInit();
@@ -262,16 +309,36 @@ uchar   idleCounter = 0;
 	for(;;){	/* main event loop */
 		wdt_reset();
 		usbPoll();
+		/*keys = keyPressedAtOnce();
+		if (lastKeys != keys)
+		{
+		    uint8_t whichKeys = (lastKeys^keys)&&(~lastKeys);
+		    lastKeys = keys;
+		    if (whichKeys&0x01) put_key(1);//keysQue[keysQueWritePtr++]=1;
+		    //keysQueWritePtr&=0x0F;
+		    if (whichKeys&0x02) put_key(2);//keysQue[keysQueWritePtr++]=2;
+		    //keysQueWritePtr&=0x0F;
+		    if (whichKeys&0x04) put_key(3);//keysQue[keysQueWritePtr++]=3;
+		    //keysQueWritePtr&=0x0F;
+
+		    lastKeys=keys;
+		}
+		if ((keysQueReadPtr!=keysQueWritePtr) && usbInterruptIsReady())
+		{
+		    buildReport(keysQue[keysQueReadPtr++]);
+		    keysQueReadPtr&=0x0F;
+		    usbSetInterrupt(reportBuffer, sizeof(reportBuffer));
+		}*/
         key = keyPressed();
         if(lastKey != key){
             lastKey = key;
             keyDidChange = 1;
         }
-        if(TIFR & (1<<TOV0)){   /* 22 ms timer */
+        if(TIFR & (1<<TOV0)){   // 22 ms timer
             TIFR = 1<<TOV0;
             if(idleRate != 0){
                 if(idleCounter > 4){
-                    idleCounter -= 5;   /* 22 ms in units of 4 ms */
+                    idleCounter -= 5;   // 22 ms in units of 4 ms
                 }else{
                     idleCounter = idleRate;
                     keyDidChange = 1;
@@ -280,9 +347,10 @@ uchar   idleCounter = 0;
         }
         if(keyDidChange && usbInterruptIsReady()){
             keyDidChange = 0;
-            /* use last key and not current key status in order to avoid lost
-               changes in key status. */
+            // use last key and not current key status in order to avoid lost
+            // changes in key status.
             buildReport(lastKey);
+            if (lastKey==0) LED_OFF(); else LED_ON();
             usbSetInterrupt(reportBuffer, sizeof(reportBuffer));
         }
 	}
