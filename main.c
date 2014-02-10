@@ -71,7 +71,7 @@ uchar	i, j;
 /* ------------------------------------------------------------------------- */
 
 /* The following function returns a bit value representing 8 keys (read at once)*/
-static uint8_t scanKeys(void)
+/*static uint8_t scanKeys(void)
 {
     static uint8_t lastKeysDetect=0x07, lastKeysRead=0x07;
     static uint8_t bounceCnt = 0;
@@ -81,16 +81,16 @@ static uint8_t scanKeys(void)
 
 
     lastKeysRead = keys;
-}
+}*/
 
-#define NUM_KEYS    17
+#define NUM_KEYS    18
 
 /* The following function returns an index for the first key pressed. It
  * returns 0 if no key is pressed.
  */
 static uchar    keyPressed(void)
 {
-uchar   i, mask, x;
+    uchar   i, mask, x;
 
     /*x = PINB;
     mask = 1;
@@ -106,6 +106,7 @@ uchar   i, mask, x;
             return i + 7;
         mask <<= 1;
     }*/
+
     x = PIND;
     mask = 1 << 4;
     for(i=0;i<4;i++){
@@ -165,75 +166,131 @@ const PROGMEM char usbHidReportDescriptor[35] = {   /* USB report descriptor */
 #define MOD_ALT_RIGHT       (1<<6)
 #define MOD_GUI_RIGHT       (1<<7)
 
-#define KEY_A       4
-#define KEY_B       5
-#define KEY_C       6
-#define KEY_D       7
-#define KEY_E       8
-#define KEY_F       9
-#define KEY_G       10
-#define KEY_H       11
-#define KEY_I       12
-#define KEY_J       13
-#define KEY_K       14
-#define KEY_L       15
-#define KEY_M       16
-#define KEY_N       17
-#define KEY_O       18
-#define KEY_P       19
-#define KEY_Q       20
-#define KEY_R       21
-#define KEY_S       22
-#define KEY_T       23
-#define KEY_U       24
-#define KEY_V       25
-#define KEY_W       26
-#define KEY_X       27
-#define KEY_Y       28
-#define KEY_Z       29
-#define KEY_1       30
-#define KEY_2       31
-#define KEY_3       32
-#define KEY_4       33
-#define KEY_5       34
-#define KEY_6       35
-#define KEY_7       36
-#define KEY_8       37
-#define KEY_9       38
-#define KEY_0       39
+#define KEY__ 0
+#define KEY_errorRollOver 1
+#define KEY_POSTfail 2
+#define KEY_errorUndefined 3
 
-#define KEY_F1      58
-#define KEY_F2      59
-#define KEY_F3      60
-#define KEY_F4      61
-#define KEY_F5      62
-#define KEY_F6      63
-#define KEY_F7      64
-#define KEY_F8      65
-#define KEY_F9      66
-#define KEY_F10     67
-#define KEY_F11     68
-#define KEY_F12     69
+#define KEY_A 4
+#define KEY_B 5
+#define KEY_C 6
+#define KEY_D 7
+#define KEY_E 8
+#define KEY_F 9
+#define KEY_G 10
+#define KEY_H 11
+#define KEY_I 12
+#define KEY_J 13
+#define KEY_K 14
+#define KEY_L 15
+#define KEY_M 16
+#define KEY_N 17
+#define KEY_O 18
+#define KEY_P 19
+#define KEY_Q 20
+#define KEY_R 21
+#define KEY_S 22
+#define KEY_T 23
+#define KEY_U 24
+#define KEY_V 25
+#define KEY_W 26
+#define KEY_X 27
+#define KEY_Y 28
+#define KEY_Z 29
+#define KEY_1 30
+#define KEY_2 31
+#define KEY_3 32
+#define KEY_4 33
+#define KEY_5 34
+#define KEY_6 35
+#define KEY_7 36
+#define KEY_8 37
+#define KEY_9 38
+#define KEY_0 39
+
+#define KEY_enter 40
+#define KEY_esc 41
+#define KEY_bckspc 42
+#define KEY_tab 43
+#define KEY_spc 44
+#define KEY_minus 45
+#define KEY_equal 46
+#define KEY_lbr 47      // [
+#define KEY_rbr 48      // ]  -- 0x30
+#define KEY_bckslsh 49  // \ (and |)
+#define KEY_hash 50     // Non-US # and ~
+#define KEY_smcol 51    // ; (and :)
+#define KEY_ping 52     // ' and "
+#define KEY_grave 53    // Grave accent and tilde
+#define KEY_comma 54    // , (and <)
+#define KEY_dot 55      // . (and >)
+#define KEY_slash 56    // / (and ?)
+#define KEY_cpslck 57   // capslock
+
+#define KEY_F1 58
+#define KEY_F2 59
+#define KEY_F3 60
+#define KEY_F4 61
+#define KEY_F5 62
+#define KEY_F6 63
+#define KEY_F7 64       // 0x40
+#define KEY_F8 65
+#define KEY_F9 66
+#define KEY_F10 67
+#define KEY_F11 68
+#define KEY_F12 69
+
+#define KEY_PrtScr 70
+#define KEY_scrlck 71
+#define KEY_break 72
+#define KEY_ins 73
+#define KEY_home 74
+#define KEY_pgup 75
+#define KEY_del 76
+#define KEY_end 77
+#define KEY_pgdn 78
+#define KEY_rarr 79
+#define KEY_larr 80     // 0x50
+#define KEY_darr 81
+#define KEY_uarr 82
+#define KEY_numlock 83
+#define KEY_KPslash 84
+#define KEY_KPast 85
+#define KEY_KPminus 86
+#define KEY_KPplus 87
+#define KEY_KPenter 88
+#define KEY_KP1 89
+#define KEY_KP2 90
+#define KEY_KP3 91
+#define KEY_KP4 92
+#define KEY_KP5 93
+#define KEY_KP6 94
+#define KEY_KP7 95
+#define KEY_KP8 96      // 0x60
+#define KEY_KP9 97
+#define KEY_KP0 98
+#define KEY_KPcomma 99
 
 static const uchar  keyReport[NUM_KEYS + 1][2] PROGMEM = {
 /* none */  {0, 0},                     /* no key pressed */
-/*  1 */    {MOD_SHIFT_LEFT, KEY_A},
-/*  2 */    {MOD_SHIFT_LEFT, KEY_B},
-/*  3 */    {MOD_SHIFT_LEFT, KEY_C},
-/*  4 */    {MOD_SHIFT_LEFT, KEY_D},
-/*  5 */    {MOD_SHIFT_LEFT, KEY_E},
-/*  6 */    {MOD_SHIFT_LEFT, KEY_F},
-/*  7 */    {MOD_SHIFT_LEFT, KEY_G},
-/*  8 */    {MOD_SHIFT_LEFT, KEY_H},
-/*  9 */    {MOD_SHIFT_LEFT, KEY_I},
-/* 10 */    {MOD_SHIFT_LEFT, KEY_J},
-/* 11 */    {MOD_SHIFT_LEFT, KEY_K},
-/* 12 */    {MOD_SHIFT_LEFT, KEY_L},
-/* 13 */    {MOD_SHIFT_LEFT, KEY_M},
-/* 14 */    {MOD_SHIFT_LEFT, KEY_N},
-/* 15 */    {MOD_SHIFT_LEFT, KEY_O},
-/* 16 */    {MOD_SHIFT_LEFT, KEY_P},
-/* 17 */    {MOD_SHIFT_LEFT, KEY_Q},
+/*  1 */    {0, KEY_KP0},
+/*  2 */    {0, KEY_KP1},
+/*  3 */    {0, KEY_KP2},
+/*  4 */    {0, KEY_KP3},
+/*  5 */    {0, KEY_KP4},
+/*  6 */    {0, KEY_KP5},
+/*  7 */    {0, KEY_KP6},
+/*  8 */    {0, KEY_KP7},
+/*  9 */    {0, KEY_KP8},
+/* 10 */    {0, KEY_KP9},
+/* 11 */    {0, KEY_E},
+/* 12 */    {0, KEY_KPminus},
+/* 13 */    {0, KEY_KPcomma},
+/* 14 */    {0, KEY_rarr},
+/* 15 */    {0, KEY_larr},
+/* 16 */    {0, KEY_darr},
+/* 17 */    {0, KEY_uarr},
+/* 18 */    {0, KEY_KPenter}
 };
 
 static void buildReport(uchar key)
@@ -247,9 +304,9 @@ uchar	usbFunctionSetup(uchar data[8])
 usbRequest_t    *rq = (void *)data;
 
     usbMsgPtr = reportBuffer;
-    if((rq->bmRequestType & USBRQ_TYPE_MASK) == USBRQ_TYPE_CLASS){    /* class request type */
-        if(rq->bRequest == USBRQ_HID_GET_REPORT){  /* wValue: ReportType (highbyte), ReportID (lowbyte) */
-            /* we only have one report type, so don't look at wValue */
+    if((rq->bmRequestType & USBRQ_TYPE_MASK) == USBRQ_TYPE_CLASS){    // class request type
+        if(rq->bRequest == USBRQ_HID_GET_REPORT){  // wValue: ReportType (highbyte), ReportID (lowbyte)
+            // we only have one report type, so don't look at wValue
             buildReport(keyPressed());
             return sizeof(reportBuffer);
         }else if(rq->bRequest == USBRQ_HID_GET_IDLE){
@@ -259,7 +316,7 @@ usbRequest_t    *rq = (void *)data;
             idleRate = rq->wValue.bytes[1];
         }
     }else{
-        /* no vendor specific requests implemented */
+        // no vendor specific requests implemented
     }
 	return 0;
 }
@@ -269,6 +326,7 @@ usbRequest_t    *rq = (void *)data;
 #define KEYBUFLEN 16
 uint8_t keyBuffer[KEYBUFLEN];
 uint8_t keyBufPtrIn=0,keyBufPtrOut=0;
+uint8_t needToEndIt = 0;
 
 void put_key(uint8_t key)
 {
@@ -282,10 +340,24 @@ uint8_t get_key(uint8_t *key)
     {
         *key = keyBuffer[keyBufPtrOut++];
         if (keyBufPtrOut>=KEYBUFLEN) keyBufPtrOut=0;
+        needToEndIt = 1;
+        return 1;
+    }
+
+    else if (needToEndIt)
+    {
+        *key = 0;
+        needToEndIt = 0;
         return 1;
     }
 
     *key = 0;
+    return 0;
+}
+
+uint8_t bufNotEmpty(void)
+{
+    if ((keyBufPtrOut!=keyBufPtrIn)||(needToEndIt!=0)) return 1;
     return 0;
 }
 
@@ -296,7 +368,9 @@ int	main(void)
 uchar   key, lastKey = 0, keyDidChange = 0;
 uchar   idleCounter = 0;
 
-    /*uint8_t keys, lastKeys=0;
+/*uchar bkey; // key from buffer
+uchar lastLastKey = 0, lastLastKeySet = 0;
+    uint8_t keys, lastKeys=0;
     uint8_t keysQue[16];
     uint8_t keysQueWritePtr=0, keysQueReadPtr=0;*/
 
@@ -329,11 +403,42 @@ uchar   idleCounter = 0;
 		    keysQueReadPtr&=0x0F;
 		    usbSetInterrupt(reportBuffer, sizeof(reportBuffer));
 		}*/
-        key = keyPressed();
-        if(lastKey != key){
-            lastKey = key;
-            keyDidChange = 1;
-        }
+
+		/*if (lastLastKeySet)
+		{
+		    lastKey        = lastLastKey;
+		    lastLastKeySet = 0;
+		    keyDidChange = 1;
+		}
+		else if (get_key(&bkey))
+		{
+		    lastLastKey    = lastKey;
+		    lastLastKeySet = 1;
+		    lastKey = bkey;
+		    keyDidChange = 1;
+		}
+		else
+		{*/
+		    static uchar lkey = 0;
+		    key = keyPressed();
+		    if (key!=lkey)
+		    {
+		        lkey=key;
+		        if (key!=0)
+		        {
+                    put_key(1);
+                    put_key(2);
+                    put_key(3);
+		        }
+		    }
+            /*key = keyPressed();
+            if(lastKey != key)
+            {
+                lastKey = key;
+                keyDidChange = 1;
+            }*/
+		//}
+
         if(TIFR & (1<<TOV0)){   // 22 ms timer
             TIFR = 1<<TOV0;
             if(idleRate != 0){
@@ -345,11 +450,17 @@ uchar   idleCounter = 0;
                 }
             }
         }
-        if(keyDidChange && usbInterruptIsReady()){
-            keyDidChange = 0;
-            // use last key and not current key status in order to avoid lost
-            // changes in key status.
-            buildReport(lastKey);
+        if((bufNotEmpty() || keyDidChange) && usbInterruptIsReady()){
+            if (bufNotEmpty())
+            {
+                get_key(&lastKey);
+                buildReport(lastKey);
+            }
+            else
+            {
+                keyDidChange = 0;
+                buildReport(lastKey);
+            }
             if (lastKey==0) LED_OFF(); else LED_ON();
             usbSetInterrupt(reportBuffer, sizeof(reportBuffer));
         }
